@@ -1,0 +1,57 @@
+CROP -- Compression using Return Oriented Programming
+----
+
+We attempt to exploit ROP to compress executables.  The idea is to
+exploit redundancy in instructions and use ROP to reuse code as much as
+possible.  BASIC was the first known program to use this technique in a
+cute way.
+
+First steps:
+
+1. Read and disassemble instructions from a binary; call it
+I={i_1,..i_n}. 
+
+2. Dump the first k instructions verbatim. 
+
+3. From the (k+1)th instruction onwards,  try to see if the instruction
+sequence {i_(k+1), .., i_(k+l), ret} has occured earlier and try to
+maximise l (greedy).
+
+4. Replace {i_(k+1), .., i_(k+l)} with 
+   push addr_of(i_(k+l+1)}
+   jmp  prev_addr(i_(k+1))
+   nop
+   nop
+   i_(k+l)
+
+   We note that there isn't any compression (yet).  The bytes in the
+   nops can be used to store some data.  The idea is to quantify the
+   #nops inserted and that gives an idea of the #bytes that could be
+   saved. 
+
+Greedy vs DP
+------------
+
+In Step (3), we choose the max instruction thing greedily.  It can be
+optimised by backtracking (or DP).  The idea is as follows. 
+
+For every subsequence of instructions S that have been seen before, we
+replace that by: 
+
+  push 32-bit addr # 6 bytes?
+  jmp  32-bit addr # 6 bytes?
+  ..
+
+Define len(S) to be the total length of instructions in S. So, the cost
+of replacing S is c(S) = len(S) - 12.  The greedy method optimises this,
+but if we're replacing a sequence of S's, then, we have to maximise the
+sum of c(S) for all S replaced.
+
+
+Phase 2
+-------
+
+Exploit the code-generator to generate ROP-favourable instructions.
+This is going to be the tough one and needs some ideas..
+
+
