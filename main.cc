@@ -4,14 +4,30 @@ using namespace std;
 #include "trie.cc"
 #include "disasm.cc"
 
+/* 2M buffer */
+unsigned char code[1<<21];
+
+int read_code(char *f) {
+  int len = 0, num;
+  
+  FILE *fp = fopen(f, "r");
+  if(fp == NULL) {
+    fprintf(stderr, "File %s not found\n", f);
+    return -1;
+  }
+  
+  while(!feof(fp)) {
+    fscanf(fp, "%2x", &num);
+    code[len++] = num;
+  }
+  
+  fclose(fp);
+  return len;
+}
+
 int main() {
-  X86Disasm d((unsigned char *)
-    "\x48\x83\xec\x08"
-    "\xe8\xa3\x0b\x00\x00"
-    "\xe8\x02\x0c\x00\x00"
-    "\xe8\x8d\x4f\x07\x00"
-    "\x48\x83\xc4\x08"
-    "\xc3", 24);
+  int len = read_code("binsh.txt");
+  X86Disasm d(code, len);
   
   Instruction ins;
   while(ins = d.next_instruction()) {
