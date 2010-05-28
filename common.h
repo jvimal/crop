@@ -6,3 +6,5 @@
 
 #define key first
 #define value second
+
+typedef unsigned char byte;
