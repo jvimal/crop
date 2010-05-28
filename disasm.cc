@@ -22,9 +22,9 @@ public:
     return Instruction(temp);
   }
   
-  Instruction get_instruction(unsigned char *buff, int maxlen, int pos) {
+  Instruction get_instruction(unsigned char *buff, int maxlen) {
     x86_insn_t ret; 
-    int sz = x86_disasm(buff, maxlen, 0, pos, &ret);
+    int sz = x86_disasm(buff, maxlen, 0, 0, &ret);
     return Instruction(ret);
   }
   
