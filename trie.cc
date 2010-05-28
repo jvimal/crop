@@ -16,19 +16,21 @@ public:
 	Trie(T root):node(root){}
 	~Trie(){ child.clear(); count.clear(); }
 	
-	Trie<T>* insert(const vector<T> &arr, int d = 0) {
+	bool insert(const vector<T> &arr, int d = 0) {
+    bool fresh = false;
 		if(d == arr.size())
-			return NULL;
+			return fresh;
 		T curr = arr[d];
 		
 		Trie<T>* &next = child[curr];
 		
 		if(next == NULL) {
 			next = new Trie<T>(curr);
+      fresh = true;
 		}
 		
 		count[curr] ++;
-		return (next)->insert(arr, d+1);
+		return fresh || (next)->insert(arr, d+1);
 	}
 	
 	void print(int d = 0) {
