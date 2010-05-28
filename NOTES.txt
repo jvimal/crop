@@ -6,28 +6,49 @@ exploit redundancy in instructions and use ROP to reuse code as much as
 possible.  BASIC was the first known program to use this technique in a
 cute way.
 
-First steps:
+Analysis
+--------
 
-1. Read and disassemble instructions from a binary; call it
-I={i_1,..i_n}. 
+1. Do a Galileo like scan that the ROP paper talks about.  The scan is
+   identifies useful instruction sequences present in the file, as follows:
+  
+   First, we construct a Trie with the root representing the 'ret' 
+   instruction.
 
-2. Dump the first k instructions verbatim. 
+   For every byte B in the text segment: 
+     if B == ret (i.e., 0xC3), then:
+        build_from(current position, root)
+  
+   build_from(pos, parent):
+     for step = 1 to max instruction length:
+       if bytes from (pos-step .. pos-1) is a valid instruction I: 
+         add child I to parent
+         if I is not boring: 
+           build_from(pos - step, ins)
 
-3. From the (k+1)th instruction onwards,  try to see if the instruction
-sequence {i_(k+1), .., i_(k+l), ret} has occured earlier and try to
-maximise l (greedy).
 
-4. Replace {i_(k+1), .., i_(k+l)} with 
-   push addr_of(i_(k+l+1)}
-   jmp  prev_addr(i_(k+1))
-   nop
-   nop
-   i_(k+l)
+2. Now is the compression routine. 
 
-   We note that there isn't any compression (yet).  The bytes in the
-   nops can be used to store some data.  The idea is to quantify the
-   #nops inserted and that gives an idea of the #bytes that could be
-   saved. 
+    1. Read and disassemble instructions from a binary; call it
+       I={i_1,..i_n}. 
+
+    2. Dump the first k instructions verbatim. 
+
+    3. From the (k+1)th instruction onwards,  try to see if the instruction
+       sequence {i_(k+1), .., i_(k+l), ret} has occured earlier and try to
+       maximise l (greedy).
+
+    4. Replace {i_(k+1), .., i_(k+l)} with 
+       push addr_of(i_(k+l+1)}
+       jmp  prev_addr(i_(k+1))
+       nop
+       nop
+       i_(k+l)
+
+       We note that there isn't any compression (yet).  The bytes in the
+       nops can be used to store some data.  The idea is to quantify the
+       #nops inserted and that gives an idea of the #bytes that could be
+       saved. 
 
 Greedy vs DP
 ------------
