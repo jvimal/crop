@@ -20,7 +20,7 @@ public:
     bool fresh = false;
 		if(d == arr.size())
 			return fresh;
-		T curr = arr[d];
+		T curr = node = arr[d];
 		
 		Trie<T,KeyCmp>* &next = child[curr];
 
@@ -30,15 +30,16 @@ public:
 		}
 		
 		count[curr] ++;
-		bool bchild = (next)->insert(arr, d+1);
+    bool bchild = (next)->insert(arr, d+1);
     return fresh or bchild;
 	}
 	
 	void print(int d = 0) {
 		//assume int for now
 		REP(i, d) printf("  ");
-		printf("Node: %d\n", node);
-		
+		printf("[%2d] Node: ", count[node]);
+    node.print();
+    
 		EACH(it, child) {
 			it->value->print(d+1);
 		}

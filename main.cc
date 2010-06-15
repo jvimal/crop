@@ -92,5 +92,6 @@ int main(int argc, char *argv[]) {
     }    
   }
   
+  trie.print();
 	return 0;
 }
