@@ -30,7 +30,8 @@ public:
 		}
 		
 		count[curr] ++;
-		return fresh || (next)->insert(arr, d+1);
+		bool bchild = (next)->insert(arr, d+1);
+    return fresh or bchild;
 	}
 	
 	void print(int d = 0) {

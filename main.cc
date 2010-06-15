@@ -5,7 +5,7 @@ using namespace std;
 #include "disasm.cc"
 
 /* 2M buffer */
-unsigned char code[1<<21];
+unsigned char code[1<<26];
 Trie<Instruction> trie;
 
 int read_code(char *f) {
@@ -33,8 +33,8 @@ void build_from(
   vector<Instruction> &v, 
   int depth = 0) 
 {
-  if(depth == 20) {
-    return;
+  if(depth == 90) {
+    goto stopit;
   }
   v.resize(depth+1);
   v[depth] = ins;
@@ -47,6 +47,7 @@ void build_from(
     }
   }
   
+  stopit:
   if(depth > 1) {
     reverse(v.begin(), v.end());
     if(trie.insert(v)) {
@@ -54,21 +55,25 @@ void build_from(
       EACH(ins, v) {
         ins->print();
       }
+      printf("\n");
     }
     reverse(v.begin(), v.end());
-    printf("   \n");
   }
 }
 
 int main() {
   int len = read_code("binsh.txt");
+  
+  if(len == -1)
+    return -1;
+  
   X86Disasm d(code, len);
   
   Instruction ins;
   while(ins = d.next_instruction()) {
     if(ins.ins.bytes[0] == 0xc3) {
       /* This is a ret instruction */
-      printf("********** ret encountered at offset %d\n", ins.ins.offset);
+      //printf("********** ret encountered at offset %d\n", ins.ins.offset);
       vector<Instruction> v;
       build_from(d, ins.ins.offset, ins, v);
     }
