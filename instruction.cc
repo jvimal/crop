@@ -2,8 +2,6 @@
 #include <libdis.h>
 
 class Instruction {
-  
-  
 public:
   x86_insn_t ins; // for convenience
   Instruction(){}
@@ -24,17 +22,15 @@ public:
     printf("%s\n", buff);
   }
   
-  bool operator==(const Instruction &right) {
-    return memcmp(ins.bytes, right.ins.bytes, 32)==0;
-  }
-  
-  bool operator<(const Instruction &right) {
-    return memcmp(ins.bytes, right.ins.bytes, 32); 
-  }
-  
   operator bool() const {
     return ins.size > 0 and ins.type != insn_invalid;
   }
   
   ~Instruction(){}
+};
+
+struct InstructionCompare {
+  bool operator()(const Instruction &a, const Instruction &b) {
+    return memcmp(a.ins.bytes, b.ins.bytes, 20)<0;
+  }
 };

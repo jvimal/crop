@@ -8,7 +8,7 @@ using namespace std;
 
 /* 2M buffer */
 unsigned char code[1<<26];
-Trie<Instruction> trie;
+Trie<Instruction,InstructionCompare> trie;
 
 int read_code(char *f) {
   int len = 0, num;
@@ -63,7 +63,7 @@ void build_from(
   }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   int len = read_code("binsh.txt");
   
   if(len == -1)
@@ -72,25 +72,25 @@ int main() {
   X86Disasm d(code, len);
   Instruction ins;
   
-  
-  REP(pos, len) {
-    if(code[pos] == RET) {
-      vector<Instruction> v;
-      Instruction ins = d.get_instruction(code+pos, 1);
-      assert(ins.ins.bytes[0]==0xc3);
-      build_from(d, pos, ins, v);
+  if(argc == 2) {
+    REP(pos, len) {
+      if(code[pos] == RET) {
+        vector<Instruction> v;
+        Instruction ins = d.get_instruction(code+pos, 1);
+        assert(ins.ins.bytes[0]==RET and ins.ins.size==1);
+        build_from(d, pos, ins, v);
+      }
     }
+  } else {
+    while(ins = d.next_instruction()) {
+      if(ins.ins.bytes[0] == RET and ins.ins.size == 1) {
+        /* This is a ret instruction */
+        //printf("********** ret encountered at offset %d\n", ins.ins.offset);
+        vector<Instruction> v;
+        build_from(d, ins.ins.offset, ins, v);
+      }
+    }    
   }
   
-  /*
-  while(ins = d.next_instruction()) {
-    if(ins.ins.bytes[0] == 0xc3) {
-      /* This is a ret instruction * /
-      //printf("********** ret encountered at offset %d\n", ins.ins.offset);
-      vector<Instruction> v;
-      build_from(d, ins.ins.offset, ins, v);
-    }
-  }
-  */
 	return 0;
 }

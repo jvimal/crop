@@ -5,11 +5,11 @@ using namespace std;
 
 #include "common.h"
 
-template<class T>
+template<class T,class KeyCmp>
 class Trie {
 	T node; 
-	map<T, Trie*> child;
-	map<T, int> count;
+	map<T, Trie*, KeyCmp> child;
+	map<T, int, KeyCmp> count;
 public:
 	
 	Trie() {}
@@ -22,10 +22,10 @@ public:
 			return fresh;
 		T curr = arr[d];
 		
-		Trie<T>* &next = child[curr];
-		
-		if(next == NULL) {
-			next = new Trie<T>(curr);
+		Trie<T,KeyCmp>* &next = child[curr];
+
+	  if(next == NULL) {
+			next = new Trie<T,KeyCmp>(curr);
       fresh = true;
 		}
 		
